@@ -16,7 +16,7 @@ The data comes from RBI's bank branch records (via [this dataset](https://github
 
 ```bash
 # clone and enter the project
-git clone <your-repo-url>
+git clone https://github.com/harshilnayi/indian-bank-api.git
 cd indian-bank-api
 
 # create a virtual env (recommended)
@@ -161,4 +161,4 @@ indian-bank-api/
 
 ## Time Taken
 
-Roughly 6-7 hours across design, implementation, and testing.
+About 2 days — spent time on design decisions, implementation, writing tests, and documentation.
