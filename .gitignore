@@ -1,0 +1,32 @@
+# byte-compiled
+__pycache__/
+*.py[cod]
+*$py.class
+
+# database files
+*.db
+*.sqlite3
+
+# virtual env
+venv/
+env/
+.venv/
+
+# IDE stuff
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# test artifacts
+.pytest_cache/
+test_*.db
+
+# distribution
+*.egg-info/
+dist/
+build/
