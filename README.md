@@ -119,7 +119,7 @@ Other available queries: `banks`, `bank(id)`, `branch(ifsc)`.
 ## Running Tests
 
 ```bash
-pytest tests/ -v
+pytest tests/ -v -p no:asyncio
 ```
 
 Tests cover:
