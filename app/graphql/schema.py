@@ -3,7 +3,7 @@ GraphQL schema using Strawberry.
 
 Exposes bank and branch data via GraphQL at /gql.
 Supports the relay-style connection pattern (edges/node) as shown
-in the assignment requirements.
+in the example query format.
 """
 
 from typing import List, Optional
@@ -46,7 +46,7 @@ class BranchEdge:
 class BranchConnection:
     """
     Relay-style connection for paginating through branches.
-    Keeps things compatible with the sample query from the assignment.
+    Keeps things compatible with the example nested query format.
     """
     edges: List[BranchEdge]
     total_count: int

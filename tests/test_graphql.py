@@ -2,7 +2,7 @@
 Tests for the GraphQL endpoint at /gql.
 
 Makes sure the schema works with the exact query format
-shown in the assignment requirements.
+used in the documented example.
 """
 
 import pytest
@@ -68,10 +68,10 @@ client = TestClient(app)
 
 class TestGraphQLQueries:
 
-    def test_assignment_sample_query(self):
+    def test_documented_sample_query(self):
         """
-        This is the exact query format from the assignment doc.
-        It MUST work or we fail the assignment.
+        This is the main nested query format documented in the README.
+        It should keep working as the schema evolves.
         """
         query = """
         query {
@@ -98,7 +98,7 @@ class TestGraphQLQueries:
         edges = data["data"]["branches"]["edges"]
         assert len(edges) > 0
 
-        # check structure matches what assignment expects
+        # check structure matches the documented nested query shape
         first_node = edges[0]["node"]
         assert "branch" in first_node
         assert "bank" in first_node

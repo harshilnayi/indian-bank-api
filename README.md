@@ -2,10 +2,10 @@
 
 This is a FastAPI service for querying Indian bank branch data from the RBI dataset published in the [`indian_banks`](https://github.com/Amanskywalker/indian_banks) repository.
 
-The assignment only required one interface, but I chose to implement both:
+I chose to implement both interfaces:
 
 - A REST API for common lookups
-- A GraphQL API at `/gql` that supports the sample nested query from the assignment
+- A GraphQL API at `/gql` that supports nested branch and bank queries
 
 The imported dataset contains about 127k branches across 170 banks.
 
@@ -75,7 +75,7 @@ curl "http://localhost:8000/api/branches/search?city=MUMBAI&limit=10"
 
 The GraphQL endpoint is available at `/gql`.
 
-This query matches the shape shown in the assignment:
+Example query:
 
 ```graphql
 query {
@@ -132,7 +132,7 @@ The tests cover:
 - REST list and detail endpoints
 - REST filtering and pagination
 - 404 handling
-- The exact GraphQL sample query from the assignment
+- GraphQL nested branch and bank queries
 - GraphQL pagination and lookup behavior
 
 ## Deployment

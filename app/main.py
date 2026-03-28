@@ -36,7 +36,7 @@ app.add_middleware(
 # mount the REST routes
 app.include_router(banks_router)
 
-# mount GraphQL - the assignment specifically asks for this at /gql
+# mount GraphQL at /gql
 graphql_app = GraphQLRouter(schema)
 app.include_router(graphql_app, prefix="/gql")
 
