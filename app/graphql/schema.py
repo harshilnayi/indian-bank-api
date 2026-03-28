@@ -6,9 +6,10 @@ Supports the relay-style connection pattern (edges/node) as shown
 in the assignment requirements.
 """
 
+from typing import List, Optional
+
 import strawberry
-from strawberry.types import Info
-from typing import Optional, List
+from graphql import GraphQLError
 
 from app.database import SessionLocal
 from app.models import Bank as BankModel, Branch as BranchModel
@@ -99,11 +100,21 @@ class Query:
 
             total = query.count()
 
-            # cap first at 100 so nobody tries to pull everything at once
-            actual_limit = min(first or 20, 100)
+            actual_offset = offset or 0
+            if actual_offset < 0:
+                raise GraphQLError("offset must be greater than or equal to 0")
+
+            if first is None:
+                actual_limit = 20
+            elif first < 0:
+                raise GraphQLError("first must be greater than or equal to 0")
+            else:
+                # cap first at 100 so nobody tries to pull everything at once
+                actual_limit = min(first, 100)
+
             rows = (
                 query.order_by(BranchModel.ifsc)
-                .offset(offset or 0)
+                .offset(actual_offset)
                 .limit(actual_limit)
                 .all()
             )
@@ -130,11 +141,22 @@ class Query:
         """Get a list of all banks."""
         db = SessionLocal()
         try:
+            actual_offset = offset or 0
+            if actual_offset < 0:
+                raise GraphQLError("offset must be greater than or equal to 0")
+
+            if first is None:
+                actual_limit = 50
+            elif first < 0:
+                raise GraphQLError("first must be greater than or equal to 0")
+            else:
+                actual_limit = min(first, 200)
+
             rows = (
                 db.query(BankModel)
                 .order_by(BankModel.name)
-                .offset(offset or 0)
-                .limit(min(first or 50, 200))
+                .offset(actual_offset)
+                .limit(actual_limit)
                 .all()
             )
             return [BankType(id=r.id, name=r.name) for r in rows]

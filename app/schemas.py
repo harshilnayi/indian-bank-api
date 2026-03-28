@@ -3,7 +3,7 @@ Pydantic schemas for request validation and response serialization.
 Keeping these separate from SQLAlchemy models is just good practice.
 """
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 from typing import List, Optional
 
 
@@ -17,16 +17,14 @@ class BankBase(BaseModel):
 class BankResponse(BankBase):
     """What a bank looks like in API responses."""
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 class BankDetailResponse(BankBase):
     """Bank with its branch count - useful for the list endpoint."""
     branch_count: int = 0
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Branch schemas ---
@@ -45,8 +43,7 @@ class BranchResponse(BranchBase):
     bank_id: int
     bank_name: Optional[str] = None
 
-    class Config:
-        from_attributes = True
+    model_config = ConfigDict(from_attributes=True)
 
 
 # --- Paginated response wrapper ---

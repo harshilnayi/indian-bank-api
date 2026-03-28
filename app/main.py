@@ -48,9 +48,16 @@ def root():
         "message": "Indian Banks API",
         "version": "1.0.0",
         "endpoints": {
+            "health": "/health",
             "rest_api": "/api/banks",
             "graphql": "/gql",
             "docs": "/docs",
             "redoc": "/redoc",
         },
     }
+
+
+@app.get("/health", tags=["Health"])
+def health_check():
+    """Lightweight health endpoint for deployments and smoke tests."""
+    return {"status": "ok"}

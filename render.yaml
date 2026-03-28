@@ -1,0 +1,8 @@
+services:
+  - type: web
+    name: indian-bank-api
+    runtime: python
+    plan: free
+    autoDeploy: true
+    buildCommand: pip install -r requirements.txt && python scripts/import_data.py
+    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT

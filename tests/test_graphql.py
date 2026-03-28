@@ -125,6 +125,34 @@ class TestGraphQLQueries:
         assert len(data["data"]["branches"]["edges"]) == 1
         assert data["data"]["branches"]["totalCount"] == 2
 
+    def test_branches_reject_negative_pagination(self):
+        query = """
+        query {
+            branches(first: -1) {
+                totalCount
+            }
+        }
+        """
+        resp = client.post("/gql", json={"query": query})
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "errors" in body
+        assert "first must be greater than or equal to 0" in body["errors"][0]["message"]
+
+    def test_banks_reject_negative_offset(self):
+        query = """
+        query {
+            banks(offset: -1) {
+                id
+            }
+        }
+        """
+        resp = client.post("/gql", json={"query": query})
+        assert resp.status_code == 200
+        body = resp.json()
+        assert "errors" in body
+        assert "offset must be greater than or equal to 0" in body["errors"][0]["message"]
+
     def test_branches_filter_by_city(self):
         query = """
         query {

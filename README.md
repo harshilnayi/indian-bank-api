@@ -1,164 +1,197 @@
 # Indian Banks API
 
-A REST + GraphQL API server for querying Indian bank branch data. Built with FastAPI and backed by SQLite.
+This is a FastAPI service for querying Indian bank branch data from the RBI dataset published in the [`indian_banks`](https://github.com/Amanskywalker/indian_banks) repository.
 
-The data comes from RBI's bank branch records (via [this dataset](https://github.com/Amanskywalker/indian_banks)) and covers ~127,000 branches across 170 banks.
+The assignment only required one interface, but I chose to implement both:
 
----
+- A REST API for common lookups
+- A GraphQL API at `/gql` that supports the sample nested query from the assignment
+
+The imported dataset contains about 127k branches across 170 banks.
+
+## What Is Included
+
+- GraphQL endpoint at `/gql`
+- REST endpoints for banks, branches, and filtered branch search
+- SQLite database with an import script for rebuilding from CSV
+- Automated tests for both REST and GraphQL
+- Deployment-ready config for Render plus a Docker setup
+- A small health endpoint at `/health` for quick verification after deploys
 
 ## Quick Start
 
 ### Prerequisites
+
 - Python 3.9+
-- pip
+- `pip`
 
 ### Setup
 
 ```bash
-# clone and enter the project
 git clone https://github.com/harshilnayi/indian-bank-api.git
 cd indian-bank-api
 
-# create a virtual env (recommended)
 python -m venv venv
-source venv/bin/activate   # on windows: venv\Scripts\activate
+source venv/bin/activate   # Windows: venv\Scripts\activate
 
-# install dependencies
 pip install -r requirements.txt
-
-# import bank data into the database
 python scripts/import_data.py
 ```
 
-### Run the Server
+### Run Locally
 
 ```bash
 uvicorn app.main:app --reload
 ```
 
-The server starts at `http://localhost:8000`. You'll find:
+Once the server is running:
 
-| URL | Description |
-|-----|-------------|
-| `http://localhost:8000/docs` | Interactive Swagger docs |
-| `http://localhost:8000/gql` | GraphQL playground |
-| `http://localhost:8000/api/banks` | REST - list all banks |
+- Swagger docs: `http://localhost:8000/docs`
+- ReDoc: `http://localhost:8000/redoc`
+- GraphQL playground: `http://localhost:8000/gql`
+- Health check: `http://localhost:8000/health`
 
----
+## REST API
 
-## API Endpoints
-
-### REST API
-
-| Method | Endpoint | Description |
-|--------|----------|-------------|
-| GET | `/api/banks` | List all banks (paginated) |
-| GET | `/api/banks/{id}` | Get a specific bank |
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| GET | `/api/banks` | List banks with pagination |
+| GET | `/api/banks/{id}` | Get one bank with branch count |
 | GET | `/api/banks/{id}/branches` | List branches for a bank |
-| GET | `/api/branches/{ifsc}` | Look up branch by IFSC code |
-| GET | `/api/branches/search` | Search branches (by city, state, bank name) |
+| GET | `/api/branches/{ifsc}` | Look up a branch by IFSC |
+| GET | `/api/branches/search` | Search by city, state, branch name, or bank name |
 
-All list endpoints support `limit` and `offset` query params for pagination.
+List endpoints support `limit` and `offset`.
 
-**Examples:**
+Example requests:
+
 ```bash
-# get first 5 banks
 curl http://localhost:8000/api/banks?limit=5
-
-# look up a branch
 curl http://localhost:8000/api/branches/SBIN0000001
-
-# search branches in Mumbai
 curl "http://localhost:8000/api/branches/search?city=MUMBAI&limit=10"
 ```
 
-### GraphQL
+## GraphQL API
 
-Available at `/gql`. Here's the query format:
+The GraphQL endpoint is available at `/gql`.
 
-```graphql
-query {
-    branches {
-        edges {
-            node {
-                branch
-                bank {
-                    name
-                }
-                ifsc
-            }
-        }
-    }
-}
-```
-
-You can also filter and paginate:
+This query matches the shape shown in the assignment:
 
 ```graphql
 query {
-    branches(city: "MUMBAI", first: 5) {
-        edges {
-            node {
-                ifsc
-                branch
-                address
-                bank {
-                    name
-                }
-            }
+  branches {
+    edges {
+      node {
+        branch
+        bank {
+          name
         }
-        totalCount
+        ifsc
+      }
     }
+  }
 }
 ```
 
-Other available queries: `banks`, `bank(id)`, `branch(ifsc)`.
+Filtering and pagination are also supported:
 
----
+```graphql
+query {
+  branches(city: "MUMBAI", first: 5) {
+    edges {
+      node {
+        ifsc
+        branch
+        address
+        bank {
+          name
+        }
+      }
+    }
+    totalCount
+  }
+}
+```
 
-## Running Tests
+Other available queries:
+
+- `banks`
+- `bank(id)`
+- `branch(ifsc)`
+
+## Tests
+
+Run the test suite with:
 
 ```bash
-pytest tests/ -v -p no:asyncio
+pytest tests/ -q -p no:asyncio
 ```
 
-Tests cover:
-- All REST endpoints (list, detail, search, pagination, 404 handling)
-- GraphQL queries (the sample query format, filtering, lookups)
+The tests cover:
 
----
+- REST list and detail endpoints
+- REST filtering and pagination
+- 404 handling
+- The exact GraphQL sample query from the assignment
+- GraphQL pagination and lookup behavior
+
+## Deployment
+
+This repo is ready to deploy.
+
+### Render
+
+A [`render.yaml`](render.yaml) file is included. The build step installs dependencies and imports the CSV data into SQLite before the app starts.
+
+Start command:
+
+```bash
+uvicorn app.main:app --host 0.0.0.0 --port $PORT
+```
+
+### Docker
+
+A [`Dockerfile`](Dockerfile) and [`.dockerignore`](.dockerignore) are included for container-based deployment.
+
+Build and run locally with Docker:
+
+```bash
+docker build -t indian-bank-api .
+docker run -p 8000:8000 indian-bank-api
+```
 
 ## Project Structure
 
-```
+```text
 indian-bank-api/
-├── app/
-│   ├── main.py           # FastAPI app setup
-│   ├── database.py       # Database connection
-│   ├── models.py         # SQLAlchemy models
-│   ├── schemas.py        # Pydantic response schemas
-│   ├── routers/
-│   │   └── banks.py      # REST endpoints
-│   └── graphql/
-│       └── schema.py     # GraphQL schema (Strawberry)
-├── scripts/
-│   └── import_data.py    # CSV to SQLite import
-├── tests/
-│   ├── test_rest.py      # REST API tests
-│   └── test_graphql.py   # GraphQL tests
-├── data/
-│   └── bank_branches.csv # Source data
-├── requirements.txt
-└── README.md
+|-- app/
+|   |-- main.py
+|   |-- database.py
+|   |-- models.py
+|   |-- schemas.py
+|   |-- graphql/
+|   |   `-- schema.py
+|   `-- routers/
+|       `-- banks.py
+|-- data/
+|   `-- bank_branches.csv
+|-- scripts/
+|   `-- import_data.py
+|-- tests/
+|   |-- test_graphql.py
+|   `-- test_rest.py
+|-- requirements.txt
+`-- README.md
 ```
 
 ## Tech Stack
 
-- **Framework**: FastAPI
-- **Database**: SQLite (via SQLAlchemy ORM)
-- **GraphQL**: Strawberry GraphQL
-- **Testing**: pytest + FastAPI TestClient
+- FastAPI
+- Strawberry GraphQL
+- SQLAlchemy
+- SQLite
+- pytest
 
 ## Time Taken
 
-About 2 days — spent time on design decisions, implementation, writing tests, and documentation.
+About 2 days. Most of the time went into designing the API shape, wiring both REST and GraphQL, importing the dataset cleanly, and writing tests.

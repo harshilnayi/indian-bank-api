@@ -17,7 +17,6 @@ from typing import Optional
 from app.database import get_db
 from app.models import Bank, Branch
 from app.schemas import (
-    BankResponse,
     BankDetailResponse,
     BranchResponse,
     PaginatedResponse,

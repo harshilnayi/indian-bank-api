@@ -165,3 +165,9 @@ class TestRootEndpoint:
         body = resp.json()
         assert "endpoints" in body
         assert body["endpoints"]["graphql"] == "/gql"
+        assert body["endpoints"]["health"] == "/health"
+
+    def test_health(self):
+        resp = client.get("/health")
+        assert resp.status_code == 200
+        assert resp.json() == {"status": "ok"}
